@@ -1,7 +1,7 @@
- // Reasons database
- const reasons = [
+// Reasons database
+const reasons = [
     { 
-        text: "You’re such a kind and wonderful person, and I was lucky to share such a good bond with you. 💖", 
+        text: "You're such a kind and wonderful person, and I feel lucky to share such a good bond with you. 💖", 
         emoji: "🌟",
         gif: "gif1.gif"
     },
@@ -28,6 +28,39 @@ const reasonsContainer = document.getElementById('reasons-container');
 const shuffleButton = document.querySelector('.shuffle-button');
 const reasonCounter = document.querySelector('.reason-counter');
 let isTransitioning = false;
+
+// MUSIC CONTROL FUNCTION 🎵
+function initMusic() {
+    const music = document.getElementById('bgMusic');
+    const volumeBtn = document.getElementById('volumeBtn');
+    
+    let isPlaying = false;
+    
+    volumeBtn.addEventListener('click', async () => {
+        if (isPlaying) {
+            music.pause();
+            volumeBtn.textContent = '🔇 Music Off';
+            volumeBtn.style.background = 'linear-gradient(45deg, #666, #444)';
+            isPlaying = false;
+        } else {
+            try {
+                await music.play();
+                volumeBtn.textContent = '🔊 Music On';
+                volumeBtn.style.background = 'linear-gradient(45deg, #ff69b4, #ff1493)';
+                isPlaying = true;
+            } catch (e) {
+                volumeBtn.textContent = '👆 Click First!';
+            }
+        }
+    });
+
+    // Auto-play when page loads (with fallback)
+    document.addEventListener('click', () => {
+        if (!isPlaying && music.paused) {
+            music.play().catch(() => {});
+        }
+    }, { once: true });
+}
 
 // Create reason card with gif
 function createReasonCard(reason) {
@@ -64,12 +97,9 @@ function displayNewReason() {
         const card = createReasonCard(reasons[currentReasonIndex]);
         reasonsContainer.appendChild(card);
         
-        // Update counter
         reasonCounter.textContent = `Reason ${currentReasonIndex + 1} of ${reasons.length}`;
-        
         currentReasonIndex++;
 
-        // Check if we should transform the button
         if (currentReasonIndex === reasons.length) {
             gsap.to(shuffleButton, {
                 scale: 1.1,
@@ -78,33 +108,25 @@ function displayNewReason() {
                 onComplete: () => {
                     shuffleButton.textContent = "Enter Our Storylane 💫";
                     shuffleButton.classList.add('story-mode');
-                    shuffleButton.addEventListener('click', () => {
+                    shuffleButton.onclick = () => {
                         gsap.to('body', {
                             opacity: 0,
                             duration: 1,
                             onComplete: () => {
-                                window.location.href = 'last.html'; // Replace with the actual URL of the next page
+                                window.location.href = 'last.html';
                             }
                         });
-                    });
+                    };
                 }
             });
         }
 
-        // Create floating elements
         createFloatingElement();
-        
-        setTimeout(() => {
-            isTransitioning = false;
-        }, 500);
-    } else {
-        // Handle navigation to new page or section
-        window.location.href = "#storylane";
-        // Or trigger your next page functionality
+        setTimeout(() => { isTransitioning = false; }, 500);
     }
 }
 
-// Initialize button click
+// Initialize
 shuffleButton.addEventListener('click', () => {
     gsap.to(shuffleButton, {
         scale: 0.9,
@@ -115,7 +137,7 @@ shuffleButton.addEventListener('click', () => {
     displayNewReason();
 });
 
-// Floating elements function (same as before)
+// Floating elements
 function createFloatingElement() {
     const elements = ['🌸', '✨', '💖', '🦋', '⭐'];
     const element = document.createElement('div');
@@ -134,15 +156,14 @@ function createFloatingElement() {
     });
 }
 
-// Custom cursor (same as before)
+// Custom cursor
 const cursor = document.querySelector('.custom-cursor');
 document.addEventListener('mousemove', (e) => {
-    gsap.to(cursor, {
-        x: e.clientX - 15,
-        y: e.clientY - 15,
-        duration: 0.2
-    });
+    gsap.to(cursor, { x: e.clientX - 15, y: e.clientY - 15, duration: 0.2 });
 });
 
-// Create initial floating elements
-setInterval(createFloatingElement, 2000);
+// Initialize everything when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    initMusic();  // 🎵 Start music controls
+    setInterval(createFloatingElement, 2000);
+});
